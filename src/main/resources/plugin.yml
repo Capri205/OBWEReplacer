@@ -1,0 +1,12 @@
+website: http://ob-mc.net
+name: OBWEReplacer
+author: Fahrenheit451
+version: 1.0
+api-version: "1.20"
+main: net.obmc.OBWEReplacer.OBWEReplacer
+description: Alternative to world edits replace command that works with blocks worldedit doesn't
+depend: [WorldEdit]
+commands:
+  obrep:
+    description: OBWEReplacer command.
+    usage: Type /obrep for a list of commands
