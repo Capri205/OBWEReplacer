@@ -3,8 +3,13 @@ package net.obmc.OBWEReplacer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -105,11 +110,39 @@ public class CommandListener implements CommandExecutor {
 
         // build a list of blocks from the region over which we can iterate and
 		// remove the block from the list to determine we've finished processing
+		log.log(Level.INFO, "debug - region volume: " + region.getVolume());
         Iterator<com.sk89q.worldedit.math.BlockVector3> bvit = region.iterator();
+		long startms = System.currentTimeMillis();
         while( bvit.hasNext() ) {
         	blockList.add( bvit.next() );
         }
-		if ( blockList.isEmpty() ) {
+		long endms = System.currentTimeMillis();
+		log.log(Level.INFO, "debug - time: " + (endms - startms));
+		
+		blockList.clear();
+
+		Spliterator<com.sk89q.worldedit.math.BlockVector3> regionsplit = region.spliterator();
+		log.log(Level.INFO, "debug - estimatesize: " + regionsplit.estimateSize());
+		Consumer<com.sk89q.worldedit.math.BlockVector3> push = b -> blockList.add(b);
+		startms = System.currentTimeMillis();
+		regionsplit.forEachRemaining( push );
+		endms = System.currentTimeMillis();
+		log.log(Level.INFO, "debug - time: " + (endms - startms));
+
+		blockList.clear();
+		
+		Stream<com.sk89q.worldedit.math.BlockVector3> regionStream = StreamSupport.stream(
+			Spliterators.spliteratorUnknownSize(
+				region.iterator(), Spliterator.ORDERED
+			), false
+		);
+		startms = System.currentTimeMillis();
+		regionStream.forEachOrdered( push );
+		endms = System.currentTimeMillis();
+		log.log(Level.INFO, "debug - time: " + (endms - startms));
+		
+        
+        if ( blockList.isEmpty() ) {
 			sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "Unable to clone region selection for processing. Try a smaller region perhaps" );
 			return true;
 		}

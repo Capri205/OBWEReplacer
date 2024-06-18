@@ -33,4 +33,4 @@ Or cancel a long running replace command:<br>
 Currently there are some hardcoded limits, such as number of blocks in the selection (1,000,000)<br>
 and the number of blocks to process per server tick (1000). These will go into a config file soon.<br>
 
-Compiled for 1.20 and Java 17.
+Compiled for 1.21 and Java 21.
