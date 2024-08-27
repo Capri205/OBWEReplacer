@@ -1,5 +1,7 @@
 package net.obmc.OBWEReplacer;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -16,6 +18,9 @@ public class OBWEReplacer extends JavaPlugin {
 	private static String pluginprefix = "[" + plugin + "]";
 	private static String chatmsgprefix = ChatColor.AQUA + "" + ChatColor.BOLD + plugin + ChatColor.DARK_GRAY + ChatColor.BOLD + " » " + ChatColor.LIGHT_PURPLE + "";
 	private static String logmsgprefix = pluginprefix + " » ";
+
+    private List<String> supportedTypes = Arrays.asList( "ITEM_FRAME", "GLOW_ITEM_FRAME", "REDSTONE_TORCH", "REDSTONE_WALL_TORCH",
+    		"TORCH", "WALL_TORCH", "SOUL_TORCH", "SOUL_WALL_TORCH" );
 
 	public OBWEReplacer() {
 		instance = this;
@@ -74,5 +79,9 @@ public class OBWEReplacer extends JavaPlugin {
 	}
 	public String getLogMsgPrefix() {
 		return logmsgprefix;
+	}
+	
+	public List<String> getSupportedTypes() {
+		return this.supportedTypes;
 	}
 }

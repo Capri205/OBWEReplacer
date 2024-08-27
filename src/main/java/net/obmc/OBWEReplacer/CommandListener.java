@@ -8,15 +8,18 @@ import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class CommandListener implements CommandExecutor {
@@ -26,11 +29,12 @@ public class CommandListener implements CommandExecutor {
 	private String chatmsgprefix = null;
 	private String logmsgprefix = null;
 	
-	private StaggeredRunnable stag = null;
+	private ReplacerRunner runner = null;
 	private boolean commandInProgress = false;
 	
     private List<com.sk89q.worldedit.math.BlockVector3> blockList = new ArrayList<>();
 
+    
 	public CommandListener() {
 		chatmsgprefix = OBWEReplacer.getInstance().getChatMsgPrefix();
 		logmsgprefix = OBWEReplacer.getInstance().getLogMsgPrefix();
@@ -45,23 +49,20 @@ public class CommandListener implements CommandExecutor {
 		}
 
 		// usage if incorrect arguments passed
-		if ( args.length < 1 ) {
+		if ( args.length == 1 && !args[0].equals( "cancel" ) ) {
 			Usage(sender);
 			return true;
 		}
+		
 		if ( args[0].equals( "cancel" ) ) {
 			if ( !commandInProgress ) {
 				sender.sendMessage( chatmsgprefix + "" + ChatColor.LIGHT_PURPLE + "No replace command running. Nothing to cancel" );
 				return true;
 			}
-			stag.cancel();
+			runner.cancel();
 			blockList.clear();
 			commandInProgress = false;
 			sender.sendMessage( chatmsgprefix + "" + ChatColor.GOLD + "Command canceled" );
-			return true;
-		}
-		if ( args.length != 2 ) {
-			Usage(sender);
 			return true;
 		}
 		
@@ -70,21 +71,57 @@ public class CommandListener implements CommandExecutor {
 			sender.sendMessage( chatmsgprefix + "" + ChatColor.LIGHT_PURPLE + "Command already running! Wait or cancel it" );
 			return true;
 		}
-		
-		String from_s = args[0].toUpperCase();
-		String to_s = args[1].toUpperCase();
 
-		if ( !from_s.equals( "ITEM_FRAME") && !from_s.equals( "GLOW_ITEM_FRAME" ) ) {
-			sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "<from> is not an item_frame or glow_item_frame" );
+		// parse arguments
+		String from_s = args[0].toUpperCase();
+		StringBuilder to_s_build = new StringBuilder( args[1].toUpperCase() );
+		for ( int i = 2; i < args.length; i++ ) {
+			to_s_build.append( args[i].toUpperCase() );
+		}
+		String to_s = to_s_build.toString().trim();
+		log.log(Level.INFO, "debug - from_s: " + from_s);
+		log.log(Level.INFO, "debug - to_s  : " + to_s);
+		
+		// check for block type to put into target item_frame '[' and ']' if target is an item frame
+		String to_s_fill = null;
+		String fillPattern = "\\[(.*)\\]";
+		Matcher matcher = Pattern.compile( fillPattern ).matcher( to_s );
+		if ( ( to_s.startsWith( "ITEM_FRAME" ) || to_s.startsWith( "GLOW_ITEM_FRAME" ) ) && matcher.find() ) {
+			to_s_fill = matcher.group(1 );
+			to_s = to_s.substring( 0, matcher.start() );
+		}
+		log.log(Level.INFO, "debug - target fill is " + to_s_fill);
+		
+		List<String> supportedTypes = OBWEReplacer.getInstance().getSupportedTypes();
+		if ( !supportedTypes.contains( from_s ) ) {
+			sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "<from> is not a supported block or entity type" );
 			return true;
 		}
-		if ( !to_s.equals( "ITEM_FRAME") && !to_s.equals( "GLOW_ITEM_FRAME" ) ) {
-			sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "<to> is not an item_frame or glow_item_frame" );
+		if ( !supportedTypes.contains( to_s ) ) {
+			sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "<to> is not a supported block or entity type" );
 			return true;
 		}
-		if ( from_s.equals( to_s ) ) {
+		if ( from_s.equals( to_s ) && to_s_fill == null ) {
 			sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "<from> and <to> are the same" );
 			return true;			
+		}
+		if ( to_s_fill != null ) {
+			
+			// validate our fill block is valid
+			try {
+				Material checkFill = Material.valueOf( to_s_fill );
+			} catch ( Exception e ) {
+			
+				sender.sendMessage( chatmsgprefix + "" + net.md_5.bungee.api.ChatColor.RED + "<to> fill material is not a valid block or entity" );
+				return true;
+			}
+			//
+			try {
+				ItemStack checkItem = new ItemStack( Material.valueOf( to_s_fill ), 1 );
+			} catch ( Exception e ) {
+				sender.sendMessage( chatmsgprefix + "" + net.md_5.bungee.api.ChatColor.RED + "<to> fill material is not a valid for an item frame" );
+				return true;
+			}
 		}
 
 		// get world edit selection player has made
@@ -104,7 +141,7 @@ public class CommandListener implements CommandExecutor {
 		// keep region selections to something not likely to cause issues
 		long regionVolume = region.getVolume();
 		if ( regionVolume > 1000000L ) {
-			sender.sendMessage( chatmsgprefix + "" + ChatColor.LIGHT_PURPLE + "Region selection too large! Try smaller areas less than 1000000 blocks" );
+			sender.sendMessage( chatmsgprefix + "" + ChatColor.LIGHT_PURPLE + "Region selection too large! Try smaller areas less than 1,000,000 blocks" );
 			return true;			
 		}
 
@@ -117,7 +154,7 @@ public class CommandListener implements CommandExecutor {
         	blockList.add( bvit.next() );
         }
 		long endms = System.currentTimeMillis();
-		log.log(Level.INFO, "debug - time: " + (endms - startms));
+		log.log(Level.INFO, "debug - blockList time: " + (endms - startms));
 		
 		blockList.clear();
 
@@ -127,7 +164,7 @@ public class CommandListener implements CommandExecutor {
 		startms = System.currentTimeMillis();
 		regionsplit.forEachRemaining( push );
 		endms = System.currentTimeMillis();
-		log.log(Level.INFO, "debug - time: " + (endms - startms));
+		log.log(Level.INFO, "debug - spliterator time: " + (endms - startms));
 
 		blockList.clear();
 		
@@ -139,19 +176,24 @@ public class CommandListener implements CommandExecutor {
 		startms = System.currentTimeMillis();
 		regionStream.forEachOrdered( push );
 		endms = System.currentTimeMillis();
-		log.log(Level.INFO, "debug - time: " + (endms - startms));
+		log.log(Level.INFO, "debug - block stream time: " + (endms - startms));
 		
         
         if ( blockList.isEmpty() ) {
 			sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "Unable to clone region selection for processing. Try a smaller region perhaps" );
 			return true;
 		}
-		
-		// pass block list to our worker routine which will perform the entity and
-		// block iteration in a runnable so as not to cause problems to the server
-		stag = new StaggeredRunnable( com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(selectionWorld), blockList, from_s, to_s );
+
+		// determine if we are dealing with replacement of a block or entity and
+		// pass block list to our runner which will perform the replacement
+    	try {
+    		EntityType fromType = EntityType.valueOf( from_s );
+    		runner = new EntityRunner( com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(selectionWorld), blockList, from_s, to_s, to_s_fill );
+    	} catch ( Exception e ) {
+    		runner = new BlockRunner( com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(selectionWorld), blockList, from_s, to_s, to_s_fill );
+    	}
 		commandInProgress = true;
-		stag.start();
+		runner.start();
 		
 		// need a task running in the background to check when replace task is done and report back to the user
 		new BukkitRunnable() {
@@ -159,12 +201,12 @@ public class CommandListener implements CommandExecutor {
 			@Override
 			public void run() {
 				
-				if ( stag.isComplete() ) {
-					sender.sendMessage( chatmsgprefix + "" + ChatColor.GOLD + "" + stag.getChangedEntityCount() + " entit" + ( stag.getChangedEntityCount() != 1 ? "ies" : "y" ) + " changed");
+				if ( runner.isComplete() ) {
+					sender.sendMessage( chatmsgprefix + "" + ChatColor.GOLD + "" + runner.getChangedCount() + " entit" + ( runner.getChangedCount() != 1 ? "ies" : "y" ) + " changed");
 					commandInProgress = false;
 					this.cancel();
 				} else {
-					int blocksProcessed = stag.getBlocksProcessed();
+					int blocksProcessed = runner.getBlocksProcessed();
 					sender.sendMessage( chatmsgprefix + "" + ChatColor.GOLD + "" + blocksProcessed + "/" + regionVolume + " (" + (int)( blocksProcessed * 100 / regionVolume ) + "%)" );
 				}
 			}
