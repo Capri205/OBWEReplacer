@@ -148,44 +148,9 @@ public class BlockRunner implements ReplacerRunner
                     mcBlock.setBlockData(newBlockData);
                 }
                 break;
-        }
-  /*      	
-    		// replace the <from> block with the <to> entity - only item frames for now
-    		if ( to_s.equals( "GLOW_ITEM_FRAME" ) ) {
-    			
-    			GlowItemFrame newFrame = (GlowItemFrame) mcBlock.getWorld().spawnEntity( mcBlock.getLocation(), EntityType.valueOf( to_s ) );
-       			newFrame.setFacingDirection( blockFacing );
-       			if ( to_s_fill != null ) {
-       				newFrame.setItem( new ItemStack( Material.valueOf( to_s_fill ), 1) );
-       			}
-       			
-    		} else if ( to_s.equals( "ITEM_FRAME" )  ) {
-    			
-    			ItemFrame newFrame = (ItemFrame) mcBlock.getWorld().spawnEntity( mcBlock.getLocation(), EntityType.valueOf( to_s ) );
-       			newFrame.setFacingDirection( blockFacing );
-       			if ( to_s_fill != null ) {
-       				newFrame.setItem( new ItemStack( Material.valueOf( to_s_fill ), 1) );
-       			}
-       			
-       		// replace the <from> block with the <to> block - only torches for now
-    		} else {
-    			
-        		// wall torches need to match the facing direction of the block being replaced
-        		if ( to_s.endsWith( "WALL_TORCH" ) ) {
-
-        			mcBlock.setType( Material.valueOf( to_s ) );
-        			Directional newBlockData = (Directional) mcBlock.getBlockData();
-        			newBlockData.setFacing( blockFacing );
-        			mcBlock.setBlockData( newBlockData );
-
-        		// otherwise just set the block and it will default to UP
-        		} else {
-        			
-       				mcBlock.setType( Material.valueOf( to_s ) );
-        		}
         	}
-*/
-       		changedCount++;
+
+        	changedCount++;
         }
  
         // if we're done processing selection cancel the task

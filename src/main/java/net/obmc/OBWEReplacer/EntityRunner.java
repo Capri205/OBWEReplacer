@@ -200,75 +200,7 @@ public class EntityRunner implements ReplacerRunner
         		        }
         		        break;
         		}
-/*
-        		if ( to_s.equals( "GLOW_ITEM_FRAME" ) ) {
-        			
-        			GlowItemFrame newFrame = (GlowItemFrame) fromItemframe.getWorld().spawnEntity( fromItemframe.getLocation(), EntityType.GLOW_ITEM_FRAME );
-           			newFrame.setFacingDirection( frameFacing );
-           			if ( to_s_fill == null ) {
-           				log.log(Level.INFO, "debug - gif keep fill");
-           				newFrame.setItem( fromItemframe.getItem() );
-           				newFrame.setRotation( frameRotation );
-           			} else {
-           				log.log(Level.INFO, "debug - gif new fill: " + to_s_fill);
-           				newFrame.setItem( new ItemStack( Material.valueOf( to_s_fill ), 1) );
-           				newFrame.setRotation( frameRotation );
-           			}
-           			
-        		} else if ( to_s.equals( "ITEM_FRAME" )  ) {
-        			
-        			ItemFrame newFrame = (ItemFrame) fromItemframe.getWorld().spawnEntity( fromItemframe.getLocation(), EntityType.ITEM_FRAME );
-           			newFrame.setFacingDirection( frameFacing );
-           			if ( to_s_fill == null ) {
-           				log.log(Level.INFO, "debug - if keep fill");
-           				newFrame.setItem( fromItemframe.getItem() );
-           				newFrame.setRotation( frameRotation );
-           			} else {
-           				log.log(Level.INFO, "debug - if new fill: " + to_s_fill);
-           				newFrame.setItem( new ItemStack( Material.valueOf( to_s_fill ), 1) );
-           				newFrame.setRotation( frameRotation );
-           			}
-           			
-           		// replace the <from> entity with the <to> block
-        		} else {
-        			
-        			Material blockMaterial = Material.valueOf( to_s );
-        			Directional blockData = null;
-        			
-            		fromItemframe.getLocation().getBlock().setType( Material.AIR );
-            			
-            		// some blocks need to match the facing direction of the entity being replaced
-            		if ( blockMaterial.createBlockData() instanceof Directional && fromItemframe.getFacing() != BlockFace.UP ) {
-            				
-            			blockData = (Directional)blockMaterial.createBlockData();
-            			blockData.setFacing( fromItemframe.getFacing() );
-            			Block torchBlock = fromItemframe.getWorld().getBlockAt( fromItemframe.getLocation());
-            			torchBlock.setType( Material.valueOf( to_s ) );
-            			torchBlock.setBlockData( blockData );
-                        
-            		// otherwise just set the block 
-            		} else {
 
-            			// but also convert some to their regular counterpart if we are facing up - wall torches for example
-            			if ( fromItemframe.getFacing().equals( BlockFace.UP ) ) {
-            				switch ( to_s ) {
-            					case "REDSTONE_WALL_TORCH":
-            						fromItemframe.getLocation().getBlock().setType( Material.valueOf( "REDSTONE_TORCH" ) ); break;
-            					case "WALL_TORCH":
-            						fromItemframe.getLocation().getBlock().setType( Material.valueOf( "TORCH" ) ); break;
-            					case "SOUL_WALL_TORCH":
-            						fromItemframe.getLocation().getBlock().setType( Material.valueOf( "SOUL_TORCH" ) ); break;
-            					default:
-            						fromItemframe.getLocation().getBlock().setType( Material.valueOf( to_s ) ); break;
-            				}
-            				
-            			} else {
-            				
-            				fromItemframe.getLocation().getBlock().setType( Material.valueOf( to_s ) );
-            			}
-            		}
-            	}
-*/
         		changedCount++;
             }
         }

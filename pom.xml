@@ -6,7 +6,7 @@
   <version>2.0</version>
   <packaging>jar</packaging>
   <name>OBWEReplacer</name>
-  <description>Enforces specific rules on a server - deop on join, survival mode, damage toggle etc.</description>
+  <description>Companion to WorldEdit to work with entities and blocks WorldEdit doesn't</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

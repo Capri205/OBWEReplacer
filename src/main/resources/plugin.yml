@@ -4,7 +4,7 @@ author: Fahrenheit451
 version: 2.0
 api-version: "1.21"
 main: net.obmc.OBWEReplacer.OBWEReplacer
-description: Alternative to world edits replace command that works with blocks worldedit doesn't
+description: Companion to WorldEdit to work with entities and blocks WorldEdit doesn't
 depend: [WorldEdit]
 commands:
   obrep:

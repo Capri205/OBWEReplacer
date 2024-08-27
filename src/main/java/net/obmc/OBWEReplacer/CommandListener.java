@@ -216,7 +216,7 @@ public class CommandListener implements CommandExecutor {
 	}
 
     private void Usage(CommandSender sender) {
-    	sender.sendMessage(chatmsgprefix + "/obrep <from itemframe> <to itemframe>" + ChatColor.GOLD + " - Replace item frame");
+    	sender.sendMessage(chatmsgprefix + "/obrep <from torch|item frame> <to torch|item frame[fill item]>" + ChatColor.GOLD + " - Replace torches and item frames");
     	sender.sendMessage(chatmsgprefix + "/obrep cancel" + ChatColor.GOLD + " - Cancel the command");
     }
 }
