@@ -6,9 +6,10 @@ For now the replacer only supports item frames and torches, as that was the "dri
 this plugin. In our build server we use a lot of item frames for vehicle head lights and tail lights,<br>
 as well as traffic lights and torches for airport lights. Using the glow item frame makes these come<br>
 alive as it glows the item in the frame so at night these look fabulous! They are by far the best<br>
-for simulating different colored point lights. Converting these by hand would have been an<br>
-absolutely mammoth undertaking, but with this plugin we can swap thousands in one world edit selection!<br>
-You can even provide the content which which to fill the <to> item frame!<br>
+for simulating different colored point lights, especially if you make the frame invisible. Converting<br>
+these by hand would have been an absolutely mammoth undertaking, but with this plugin we can swap out<br>
+thousands in one world edit selection! You can even provide the content which which to fill the <to><br>
+item frame and set whether the frame should be visible or invisible!<br>
 
 Regular item frames:<br>
 <img src="https://ob-mc.net/repo/obwereplacer_2.png" width="450" height="247">
@@ -26,7 +27,7 @@ Torches to item frames:<br>
 
 Cool creations: <br>
 <img src="https://ob-mc.net/repo/obwereplacer_6.png" width="450" height="247">
-
+<img src="https://ob-mc.net/repo/obwereplacer_8.png" width="450" height="247">
 
 The goal will be to add more entities and blocks currently not covered by WorldEdit replace, or<br>
 where it doesn't perform the replace correctly.
@@ -45,6 +46,10 @@ Add new item to target item frame<br>
 Switch between any type of torch or to an item frame, preserving direction of source torch<br>
 /obrep redstone_torch glow_item_frame[red_wool]<br>
 /obrep wall_torch item_frame[yellow_concrete]<br>
+
+Make the frame invisible<br>
+/obrep soul_torch glow_item_frame[diamond_axe, invisible]<br>
+/obrep soul_wall_torch item_frame[ visible, diamond_axe]<br>
 
 Or cancel a long running replace command:<br>
 /obrep cancel<br>

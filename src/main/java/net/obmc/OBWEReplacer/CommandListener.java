@@ -1,6 +1,7 @@
 package net.obmc.OBWEReplacer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -49,7 +50,7 @@ public class CommandListener implements CommandExecutor {
 		}
 
 		// usage if incorrect arguments passed
-		if ( args.length == 1 && !args[0].equals( "cancel" ) ) {
+		if ( args.length == 0 || ( args.length == 1 && !args[0].equals( "cancel" ) ) ) {
 			Usage(sender);
 			return true;
 		}
@@ -79,19 +80,46 @@ public class CommandListener implements CommandExecutor {
 			to_s_build.append( args[i].toUpperCase() );
 		}
 		String to_s = to_s_build.toString().trim();
-		log.log(Level.INFO, "debug - from_s: " + from_s);
-		log.log(Level.INFO, "debug - to_s  : " + to_s);
-		
-		// check for block type to put into target item_frame '[' and ']' if target is an item frame
-		String to_s_fill = null;
+
+		// get the somma separated options for the target if provided
+		List<String> to_s_fillOptions = new ArrayList<String>();
 		String fillPattern = "\\[(.*)\\]";
 		Matcher matcher = Pattern.compile( fillPattern ).matcher( to_s );
 		if ( ( to_s.startsWith( "ITEM_FRAME" ) || to_s.startsWith( "GLOW_ITEM_FRAME" ) ) && matcher.find() ) {
-			to_s_fill = matcher.group(1 );
+
+			// get the target item frame
 			to_s = to_s.substring( 0, matcher.start() );
+			// get the item frame options
+			String fillOptions = matcher.group( 1 );
+			to_s_fillOptions = Arrays.asList( fillOptions.split( "," ) );
 		}
-		log.log(Level.INFO, "debug - target fill is " + to_s_fill);
 		
+		// validate options if provided
+		boolean visible = true;
+		String to_s_fill = null;
+		Iterator<String> foit = to_s_fillOptions.iterator();
+		while( foit.hasNext() ) {
+			
+			String option = foit.next();
+			
+			if ( option.equals( "VISIBLE" ) ) {
+				visible = true;
+			} else if ( option.equals( "INVISIBLE" ) ) {
+				visible = false;
+			} else {
+				try {
+					if ( !fillIsValid( option ) ) {
+						throw new Exception();
+					}
+					to_s_fill = option;
+				} catch ( Exception e ) {
+					sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "Invalid option provided '" + option + "'. See usage" );
+					return true;
+				}
+			}
+		}
+
+		// check from and to are supported and not the same 
 		List<String> supportedTypes = OBWEReplacer.getInstance().getSupportedTypes();
 		if ( !supportedTypes.contains( from_s ) ) {
 			sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "<from> is not a supported block or entity type" );
@@ -105,24 +133,12 @@ public class CommandListener implements CommandExecutor {
 			sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "<from> and <to> are the same" );
 			return true;			
 		}
-		if ( to_s_fill != null ) {
-			
-			// validate our fill block is valid
-			try {
-				Material checkFill = Material.valueOf( to_s_fill );
-			} catch ( Exception e ) {
-			
-				sender.sendMessage( chatmsgprefix + "" + net.md_5.bungee.api.ChatColor.RED + "<to> fill material is not a valid block or entity" );
-				return true;
-			}
-			//
-			try {
-				ItemStack checkItem = new ItemStack( Material.valueOf( to_s_fill ), 1 );
-			} catch ( Exception e ) {
-				sender.sendMessage( chatmsgprefix + "" + net.md_5.bungee.api.ChatColor.RED + "<to> fill material is not a valid for an item frame" );
-				return true;
-			}
-		}
+
+		log.log(Level.INFO, "debug - from_s: " + from_s);
+		log.log(Level.INFO, "debug - to_s  : " + to_s);
+		log.log(Level.INFO, "debug - to_s_fillOptions: " + to_s_fillOptions.toString());
+		log.log(Level.INFO, "debug - to_s_fill: " + to_s_fill);
+		log.log(Level.INFO, "debug - visible: " + visible);
 
 		// get world edit selection player has made
 		com.sk89q.worldedit.entity.Player actor = (com.sk89q.worldedit.entity.Player) com.sk89q.worldedit.bukkit.BukkitAdapter.adapt( sender );
@@ -188,9 +204,10 @@ public class CommandListener implements CommandExecutor {
 		// pass block list to our runner which will perform the replacement
     	try {
     		EntityType fromType = EntityType.valueOf( from_s );
-    		runner = new EntityRunner( com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(selectionWorld), blockList, from_s, to_s, to_s_fill );
+    		runner = new EntityRunner( com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(selectionWorld), blockList,
+    				from_s, to_s, to_s_fillOptions.get(0) );
     	} catch ( Exception e ) {
-    		runner = new BlockRunner( com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(selectionWorld), blockList, from_s, to_s, to_s_fill );
+    		runner = new BlockRunner( com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(selectionWorld), blockList, from_s, to_s, to_s_fill, visible );
     	}
 		commandInProgress = true;
 		runner.start();
@@ -216,7 +233,28 @@ public class CommandListener implements CommandExecutor {
 	}
 
     private void Usage(CommandSender sender) {
-    	sender.sendMessage(chatmsgprefix + "/obrep <from torch|item frame> <to torch|item frame[fill item]>" + ChatColor.GOLD + " - Replace torches and item frames");
+    	sender.sendMessage(chatmsgprefix + "/obrep <from torch|item frame> <to torch|item frame>" + ChatColor.GOLD + " - Replace torches and item frames");
+    	sender.sendMessage(chatmsgprefix + "<to item frame>[fill options]" + ChatColor.GOLD + " - Specify options for item frame in square brackets.");
+    	sender.sendMessage(chatmsgprefix + "Fill options are the item or block to put in the frame, and whether the frame is visible or invisible");
+    	sender.sendMessage(chatmsgprefix + "Eg. [RED_WOOL] or [LIME_WOOL,INVISIBLE] default is visible, but you can put VISIBLE if you want.");
     	sender.sendMessage(chatmsgprefix + "/obrep cancel" + ChatColor.GOLD + " - Cancel the command");
+    }
+    
+    // validate a fill block or item is valid
+    private boolean fillIsValid( String to_s_fill ) {
+    	
+		try {
+			Material checkFill = Material.valueOf( to_s_fill );
+		} catch ( Exception e ) {
+			return false;
+		}
+		//
+		try {
+			ItemStack checkItem = new ItemStack( Material.valueOf( to_s_fill ), 1 );
+		} catch ( Exception e ) {
+			return false;
+		}
+		
+		return true;
     }
 }

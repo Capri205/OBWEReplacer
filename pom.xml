@@ -3,7 +3,7 @@
 
   <groupId>net.obmc</groupId>
   <artifactId>OBWEReplacer</artifactId>
-  <version>2.0</version>
+  <version>2.1</version>
   <packaging>jar</packaging>
   <name>OBWEReplacer</name>
   <description>Companion to WorldEdit to work with entities and blocks WorldEdit doesn't</description>

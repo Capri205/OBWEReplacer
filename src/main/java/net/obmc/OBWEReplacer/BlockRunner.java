@@ -41,6 +41,7 @@ public class BlockRunner implements ReplacerRunner
     private final String from_s;
     private final String to_s;
     private final String to_s_fill;
+    private final boolean visible;
     
     private int taskId = 0;
  
@@ -51,7 +52,7 @@ public class BlockRunner implements ReplacerRunner
     
     private final int maxIterationsPerTick = 1000;
  
-    public BlockRunner( World world, List<BlockVector3> blockList, String from_s, String to_s, String to_s_fill )
+    public BlockRunner( World world, List<BlockVector3> blockList, String from_s, String to_s, String to_s_fill, boolean visible )
     {
         this.myPlugin = OBWEReplacer.getInstance();
         
@@ -60,6 +61,7 @@ public class BlockRunner implements ReplacerRunner
         this.from_s = from_s;
         this.to_s = to_s;
         this.to_s_fill = to_s_fill;
+        this.visible = visible;
         
 		chatmsgprefix = OBWEReplacer.getInstance().getChatMsgPrefix();
 		logmsgprefix = OBWEReplacer.getInstance().getLogMsgPrefix();
@@ -138,6 +140,10 @@ public class BlockRunner implements ReplacerRunner
                 newFrame.setFacingDirection(blockFacing);
                 if (to_s_fill != null) {
                     newFrame.setItem(new ItemStack(Material.valueOf(to_s_fill), 1));
+                }
+                if ( visible == false ) {
+                	log.log(Level.INFO, "debug - setting invisible");
+                	newFrame.setVisible( false );
                 }
                 break;
             default:
