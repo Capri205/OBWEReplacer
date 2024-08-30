@@ -129,9 +129,9 @@ public class CommandListener implements CommandExecutor {
 			sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "<to> is not a supported block or entity type" );
 			return true;
 		}
-		if ( from_s.equals( to_s ) && to_s_fill == null ) {
+		if ( from_s.equals( to_s ) && to_s_fillOptions.size() == 0 ) {
 			sender.sendMessage( chatmsgprefix + "" + ChatColor.RED + "<from> and <to> are the same" );
-			return true;			
+			return true;
 		}
 
 		log.log(Level.INFO, "debug - from_s: " + from_s);
@@ -204,8 +204,7 @@ public class CommandListener implements CommandExecutor {
 		// pass block list to our runner which will perform the replacement
     	try {
     		EntityType fromType = EntityType.valueOf( from_s );
-    		runner = new EntityRunner( com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(selectionWorld), blockList,
-    				from_s, to_s, to_s_fillOptions.get(0) );
+    		runner = new EntityRunner( com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(selectionWorld), blockList, from_s, to_s, to_s_fill, visible );
     	} catch ( Exception e ) {
     		runner = new BlockRunner( com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(selectionWorld), blockList, from_s, to_s, to_s_fill, visible );
     	}

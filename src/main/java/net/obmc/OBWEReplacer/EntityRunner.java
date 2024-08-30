@@ -42,7 +42,8 @@ public class EntityRunner implements ReplacerRunner
     private final String from_s;
     private final String to_s;
     private final String to_s_fill;
-    
+    private final boolean visible;
+
     private int taskId = 0;
  
     private int iteratorCount = 0;
@@ -52,7 +53,7 @@ public class EntityRunner implements ReplacerRunner
     
     private final int maxIterationsPerTick = 1000;
  
-    public EntityRunner( World world, List<BlockVector3> blockList, String from_s, String to_s, String to_s_fill )
+    public EntityRunner( World world, List<BlockVector3> blockList, String from_s, String to_s, String to_s_fill, boolean visible )
     {
         this.myPlugin = OBWEReplacer.getInstance();
 
@@ -61,6 +62,7 @@ public class EntityRunner implements ReplacerRunner
         this.from_s = from_s;
         this.to_s = to_s;
         this.to_s_fill = to_s_fill;
+        this.visible = visible;
 
 		chatmsgprefix = OBWEReplacer.getInstance().getChatMsgPrefix();
 		logmsgprefix = OBWEReplacer.getInstance().getLogMsgPrefix();
@@ -150,14 +152,17 @@ public class EntityRunner implements ReplacerRunner
         		
         		    case "GLOW_ITEM_FRAME":
         		    case "ITEM_FRAME":
-        		    	
+        		    	log.log(Level.INFO, "debug - to_s_fill: " + to_s_fill);
         		        ItemFrame newFrame = (ItemFrame) fromItemframe.getWorld().spawnEntity( fromItemframe.getLocation(), EntityType.valueOf( to_s ) );
         		        newFrame.setFacingDirection(frameFacing);
-        		        if (to_s_fill == null) {
+        		        if ( to_s_fill == null ) {
         		            newFrame.setItem( fromItemframe.getItem() );
         		        } else {
         		            newFrame.setItem( new ItemStack( Material.valueOf( to_s_fill ), 1 ) );
         		        }
+                        if ( visible == false ) {
+                        	newFrame.setVisible( false );
+                        }
         		        newFrame.setRotation( frameRotation );
         		        break;
         		        

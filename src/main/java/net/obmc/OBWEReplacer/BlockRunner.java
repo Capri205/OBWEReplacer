@@ -142,7 +142,6 @@ public class BlockRunner implements ReplacerRunner
                     newFrame.setItem(new ItemStack(Material.valueOf(to_s_fill), 1));
                 }
                 if ( visible == false ) {
-                	log.log(Level.INFO, "debug - setting invisible");
                 	newFrame.setVisible( false );
                 }
                 break;
