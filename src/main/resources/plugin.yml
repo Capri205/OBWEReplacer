@@ -1,10 +1,10 @@
-website: http://ob-mc.net
-name: OBWEReplacer
-author: Fahrenheit451
-version: 2.1
-api-version: "1.21"
-main: net.obmc.OBWEReplacer.OBWEReplacer
-description: Companion to WorldEdit to work with entities and blocks WorldEdit doesn't
+name: ${project.name}
+description: ${project.description}
+author: Fahrenheit451|Capri205
+website: ${project.url}
+version: ${project.version}
+api-version: ${api-version}
+main: net.obmc.${project.name}.${project.name}
 depend: [WorldEdit]
 commands:
   obrep:

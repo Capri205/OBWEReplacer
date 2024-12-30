@@ -3,18 +3,20 @@
 
   <groupId>net.obmc</groupId>
   <artifactId>OBWEReplacer</artifactId>
-  <version>2.1</version>
-  <packaging>jar</packaging>
   <name>OBWEReplacer</name>
+  <version>2.1</version>
   <description>Companion to WorldEdit to work with entities and blocks WorldEdit doesn't</description>
+  <url>http://ob-mc.net</url>
+  <packaging>jar</packaging>
 
   <properties>
+    <api-version>1.21</api-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <build>
 
-    <finalName>OBWEReplacer-v${project.version}</finalName>
+    <finalName>${project.name}-${project.version}</finalName>
 
     <resources>
       <resource>
@@ -35,6 +37,10 @@
         <configuration>
           <source>21</source>
           <target>21</target>
+          <compilerArgs>
+            <arg>-Xlint:-options</arg>
+            <arg>-proc:full</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
     </plugins>
@@ -54,12 +60,12 @@
     <dependency>
       <groupId>io.papermc.paper</groupId>
       <artifactId>paper-api</artifactId>
-      <version>1.21.3-R0.1-SNAPSHOT</version>
+      <version>1.21.4-R0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.sk89q.worldedit</groupId>
       <artifactId>worldedit-bukkit</artifactId>
-      <version>7.3.7</version>
+      <version>7.3.9</version>
     </dependency>
   </dependencies>
 

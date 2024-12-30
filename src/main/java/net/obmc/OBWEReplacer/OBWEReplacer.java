@@ -4,9 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 public class OBWEReplacer extends JavaPlugin {
 
@@ -16,11 +18,17 @@ public class OBWEReplacer extends JavaPlugin {
 
 	private static String plugin = "OBWEReplacer";
 	private static String pluginprefix = "[" + plugin + "]";
-	private static String chatmsgprefix = ChatColor.AQUA + "" + ChatColor.BOLD + plugin + ChatColor.DARK_GRAY + ChatColor.BOLD + " » " + ChatColor.LIGHT_PURPLE + "";
+    private static Component chatmsgprefix = Component.text()
+            .color(NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true)
+            .append(Component.text(plugin))
+            .append(Component.text(" » ", NamedTextColor.DARK_GRAY, TextDecoration.BOLD))
+            .append(Component.text("", NamedTextColor.LIGHT_PURPLE))
+            .build();
 	private static String logmsgprefix = pluginprefix + " » ";
 
-    private List<String> supportedTypes = Arrays.asList( "ITEM_FRAME", "GLOW_ITEM_FRAME", "REDSTONE_TORCH", "REDSTONE_WALL_TORCH",
-    		"TORCH", "WALL_TORCH", "SOUL_TORCH", "SOUL_WALL_TORCH" );
+    private List<String> supportedTypes = Arrays.asList(
+        "ITEM_FRAME", "GLOW_ITEM_FRAME", "REDSTONE_TORCH", "REDSTONE_WALL_TORCH",
+    	"TORCH", "WALL_TORCH", "SOUL_TORCH", "SOUL_WALL_TORCH" );
 
 	public OBWEReplacer() {
 		instance = this;
@@ -74,7 +82,7 @@ public class OBWEReplacer extends JavaPlugin {
 	public static String getPluginPrefix() {
 		return pluginprefix;
 	}
-	public String getChatMsgPrefix() {
+	public Component getChatMsgPrefix() {
 		return chatmsgprefix;
 	}
 	public String getLogMsgPrefix() {

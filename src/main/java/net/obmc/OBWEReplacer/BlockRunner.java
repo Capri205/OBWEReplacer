@@ -3,33 +3,29 @@ package net.obmc.OBWEReplacer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Rotation;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
-import org.bukkit.block.data.Rotatable;
-import org.bukkit.block.data.type.RedstoneWallTorch;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.GlowItemFrame;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.Torch;
 import org.bukkit.plugin.Plugin;
+
 import com.sk89q.worldedit.math.BlockVector3;
+
+import net.kyori.adventure.text.Component;
 
 public class BlockRunner implements ReplacerRunner
 {
 	
 	static Logger log = Logger.getLogger("Minecraft");
 	
-	private String chatmsgprefix = null;
+	private Component chatmsgprefix = null;
 	private String logmsgprefix = null;
 	
     private final Plugin myPlugin;
@@ -95,13 +91,11 @@ public class BlockRunner implements ReplacerRunner
     {
         iteratorCount = 0;
         
-
         // while the list isnt empty, and we havent exceeded matIteraternsPerTick....
         // the loop will stop when it reaches 300 iterations OR the list becomes empty
-        // this ensures that the server will be happy chappy, not doing too much per tick.
+        // this ensures that the server will be happy happy, not doing too much per tick.
  
- 
-        // iterate over block(s) in selection and perform replacement if a match
+         // iterate over block(s) in selection and perform replacement if a match
         bvit = blockList.iterator();
         while( bvit.hasNext() && iteratorCount < maxIterationsPerTick ) {
         
@@ -114,7 +108,7 @@ public class BlockRunner implements ReplacerRunner
             totalBlocksProcessed++;
         	
         	// get minecraft block for world edit block, and mc world and location
-        	Location mcLocation = new Location( world, bv.getX(), bv.getY(), bv.getZ() );
+        	Location mcLocation = new Location( world, bv.x(), bv.y(), bv.z() );
         	Block mcBlock = world.getBlockAt( mcLocation );
         	if ( !mcBlock.getType().name().equals( from_s ) ) {
         		continue;
@@ -163,7 +157,6 @@ public class BlockRunner implements ReplacerRunner
         	this.complete = true;
             this.myPlugin.getServer().getScheduler().cancelTask( this.taskId );
         }
- 
     }
 
 	public List<com.sk89q.worldedit.math.BlockVector3> getBlockListSize() {
@@ -190,5 +183,4 @@ public class BlockRunner implements ReplacerRunner
 		this.complete = true;
         this.myPlugin.getServer().getScheduler().cancelTask( this.taskId );
 	}
-
 }

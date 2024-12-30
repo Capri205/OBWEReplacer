@@ -13,11 +13,9 @@ import org.bukkit.Rotation;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.GlowItemFrame;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -25,12 +23,14 @@ import org.bukkit.util.BoundingBox;
 
 import com.sk89q.worldedit.math.BlockVector3;
 
+import net.kyori.adventure.text.Component;
+
 public class EntityRunner implements ReplacerRunner
 {
 	
 	static Logger log = Logger.getLogger("Minecraft");
 	
-	private String chatmsgprefix = null;
+	private Component chatmsgprefix = null;
 	private String logmsgprefix = null;
 	
     private final Plugin myPlugin;
@@ -95,12 +95,10 @@ public class EntityRunner implements ReplacerRunner
     public void run()
     {
         iteratorCount = 0;
-        
 
         // while the list isnt empty, and we havent exceeded matIteraternsPerTick....
         // the loop will stop when it reaches 300 iterations OR the list becomes empty
-        // this ensures that the server will be happy chappy, not doing too much per tick.
- 
+        // this ensures that the server will be happy happy, not doing too much per tick.
  
         // iterate over block(s) in selection and look for nearby supported types that are the block or attached to the block and perform replacement
         bvit = blockList.iterator();
@@ -115,7 +113,7 @@ public class EntityRunner implements ReplacerRunner
             totalBlocksProcessed++;
         	
         	// get minecraft block for world edit block, and mc world and location
-        	Location mcLocation = new Location( world, bv.getX(), bv.getY(), bv.getZ() );
+        	Location mcLocation = new Location( world, bv.x(), bv.y(), bv.z() );
         	Block mcBlock = world.getBlockAt( mcLocation );
         	
         	// use a bounding box around current block and get entities within that box
@@ -139,7 +137,7 @@ public class EntityRunner implements ReplacerRunner
         		Block checkBlock = fromItemframe.getLocation().getBlock().getRelative( frameAttachedFace );
 
         		// get block frame is attached to and make sure it's the block we're currently processing
-        		if ( checkBlock.getX() != bv.getX() || checkBlock.getY() != bv.getBlockY() || checkBlock.getZ() != bv.getZ() ) {
+        		if ( checkBlock.getX() != bv.x() || checkBlock.getY() != bv.y() || checkBlock.getZ() != bv.z() ) {
         			continue;
         		}
         		fromItemframe.getItem();
@@ -152,7 +150,6 @@ public class EntityRunner implements ReplacerRunner
         		
         		    case "GLOW_ITEM_FRAME":
         		    case "ITEM_FRAME":
-        		    	log.log(Level.INFO, "debug - to_s_fill: " + to_s_fill);
         		        ItemFrame newFrame = (ItemFrame) fromItemframe.getWorld().spawnEntity( fromItemframe.getLocation(), EntityType.valueOf( to_s ) );
         		        newFrame.setFacingDirection(frameFacing);
         		        if ( to_s_fill == null ) {
@@ -210,7 +207,6 @@ public class EntityRunner implements ReplacerRunner
             }
         }
 
- 
         // if we're done processing selection cancel the task
         if ( !bvit.hasNext() ) {
         	this.complete = true;
